@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+		
+		<!-- Web과 직접적으로 관련된 설정을 하는 파일 -->
+		<!-- view resolver 등록 -->
+		<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			<!-- value에 지정한 경로에 있는 -->
+			<property name="prefix" value="/WEB-INF/view/"></property>
+			<!-- 모든 jsp들 -->
+			<property name="suffix" value=".jsp"></property>
+		</bean>
+		
+		<!-- handlerMapping은 기본 사용이 있어서 등록할 필요 x -->
+		<!-- controller 등록 -->
+		<context:component-scan base-package="com.ssafy.mvc.controller"></context:component-scan>
+
+		
+		
+</beans>
