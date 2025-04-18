@@ -14,6 +14,7 @@
 	<form method="post" 
 		  enctype="multipart/form-data"
 		  action="update">
+		  <input type="hidden" name="no" value=${board.no }>
 		<div>
 			<label>제목</label>
 			<input type="text" name="title" value="${board.title}"/>
