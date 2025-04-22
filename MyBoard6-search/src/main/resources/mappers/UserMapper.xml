@@ -5,7 +5,7 @@
 <mapper namespace="com.ssafy.exam.model.dao.UserDao">
 	<select id="selectLogin" 
 	        parameterType="user" resultType="user">
-		select user_id as userId, name, role
+		select user_no as userNo, user_id as userId, name, role
 		  from users
 		 where user_id = #{userId}
 		   and password = #{password}		        

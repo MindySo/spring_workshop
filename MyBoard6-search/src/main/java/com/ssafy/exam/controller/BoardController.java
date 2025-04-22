@@ -14,6 +14,7 @@ import com.ssafy.exam.model.dto.BoardReaction;
 import com.ssafy.exam.model.dto.BoardSearch;
 import com.ssafy.exam.model.dto.User;
 import com.ssafy.exam.model.service.BoardService;
+import com.ssafy.exam.model.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,7 +23,7 @@ import jakarta.servlet.http.HttpSession;
 public class BoardController {
 	
 	private final BoardService boardService;
-	public BoardController(BoardService boardService) {
+	public BoardController(BoardService boardService, UserService userService) {
 		this.boardService = boardService;
 	}
 	
@@ -93,6 +94,7 @@ public class BoardController {
 	@GetMapping("newReact")
 	public String newReact(int no, boolean reaction, HttpSession session) {
 		User user = (User) session.getAttribute("loginUser");
+		System.out.println(user.getUserNo());
 		BoardReaction boardReaction = new BoardReaction();
 		boardReaction.setNo(no);
 		boardReaction.setReaction(reaction);
