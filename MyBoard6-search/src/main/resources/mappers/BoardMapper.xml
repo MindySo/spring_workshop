@@ -112,6 +112,22 @@
 		AND user_no = #{userNo}
 	</delete>
 	
+	<select id="selectBoardLikes" parameterType="int" resultType="int">
+		select
+		count(*)
+		from board_reaction
+		where no = #{no} 
+		and reaction = true
+	</select>
+	
+	<select id="selectBoardDislikes" parameterType="int" resultType="int">
+		select
+		count(*)
+		from board_reaction
+		where no = #{no} 
+		and reaction = false
+	</select>
+	
 
 </mapper>
 

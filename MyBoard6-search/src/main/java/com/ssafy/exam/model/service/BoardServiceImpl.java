@@ -88,6 +88,8 @@ public class BoardServiceImpl implements BoardService {
 		Board board = boardDao.selectDetail(no);
 		List<BoardFile> boardFiles = boardDao.selectBoardFileList(no);
 		board.setBoardFiles(boardFiles);
+		board.setLikes(boardDao.selectBoardLikes(no));
+		board.setDislikes(boardDao.selectBoardDislikes(no));
 		return board;
 	}
 

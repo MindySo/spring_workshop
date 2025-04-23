@@ -22,4 +22,6 @@ public interface BoardDao {
 	void insertBoardReaction(BoardReaction boardReaction);
 	void updateBoardReaction(BoardReaction boardReaction);
 	void deleteBoardReaction(BoardReaction boardReaction);
+	int selectBoardLikes(int no);
+	int selectBoardDislikes(int no);
 }

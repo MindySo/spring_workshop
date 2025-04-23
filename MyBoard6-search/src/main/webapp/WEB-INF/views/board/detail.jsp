@@ -60,6 +60,9 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            color: black;
+            background-color: #f7f7f7;
+            text-decoration: none;
         }
         .btn-list {
             background-color: #f8f8f8;
@@ -75,8 +78,13 @@
         }
         .btn.active {
 		  font-weight: bold;
-		  background-color: #f0f0f0;
-		  border-color: #333;
+		  background-color: #c9c9c9;
+		  border: 3px solid #a8a8a8;
+		}
+		.btn.disabled {
+		  pointer-events: none;
+		  opacity: 0.5;
+		  cursor: not-allowed;
 		}
 		        
         
@@ -98,7 +106,8 @@
             ${board.content}
         </div>
 
-		<div class="reaction">
+		<%-- <div class="reaction">
+		
 			<c:choose>
 				<c:when test="${empty sessionScope.loginUser}">
 	            	<p>리액션하려면 로그인하세요.</p>
@@ -144,7 +153,68 @@
 	            </c:otherwise>
 			</c:choose>
             
+		</div> --%>
+		
+		
+		
+		<div class="reaction">
+		    <c:choose>
+		        <c:when test="${empty sessionScope.loginUser}">
+		            <p>리액션하려면 로그인하세요.</p>
+		            <div class="reaction-buttons">
+		                <!-- 추천 버튼 (비활성화) -->
+		                <a class="btn disabled" style="pointer-events: none; opacity: 0.5;">
+		                    👍 추천 ${board.likes }
+		                </a>
+		                <!-- 비추천 버튼 (비활성화) -->
+		                <a class="btn disabled" style="pointer-events: none; opacity: 0.5;">
+		                    👎 비추천 ${board.dislikes }
+		                </a>
+		            </div>
+		        </c:when>
+		        <c:otherwise>
+		            <div class="reaction-buttons">
+		                <!-- 추천 버튼 -->
+		                <a
+		                    href="<c:choose>
+		                               <c:when test='${empty boardReaction}'>
+		                                   newReact?no=${board.no}&reaction=true
+		                               </c:when>
+		                               <c:when test='${boardReaction.reaction}'>
+		                                   deleteReact?no=${board.no}
+		                               </c:when>
+		                               <c:otherwise>
+		                                   updateReact?no=${board.no}&reaction=true
+		                               </c:otherwise>
+		                          </c:choose>"
+		                    class="btn <c:if test='${boardReaction.reaction}'>active</c:if>">
+		                    👍 추천 ${board.likes }
+		                </a>
+		
+		                <!-- 비추천 버튼 -->
+		                <a
+		                    href="<c:choose>
+		                               <c:when test='${empty boardReaction}'>
+		                                   newReact?no=${board.no}&reaction=false
+		                               </c:when>
+		                               <c:when test='${not boardReaction.reaction}'>
+		                                   deleteReact?no=${board.no}
+		                               </c:when>
+		                               <c:otherwise>
+		                                   updateReact?no=${board.no}&reaction=false
+		                               </c:otherwise>
+		                          </c:choose>"
+		                    class="btn <c:if test='${not empty boardReaction and not boardReaction.reaction}'>active</c:if>">
+		                    👎 비추천 ${board.dislikes }
+		                </a>
+		            </div>
+		        </c:otherwise>
+		    </c:choose>
 		</div>
+
+
+
+
 
 		<div class="attachments">
             <h4>첨부파일</h4>

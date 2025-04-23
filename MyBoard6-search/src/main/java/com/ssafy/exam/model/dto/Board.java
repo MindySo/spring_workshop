@@ -12,6 +12,8 @@ public class Board {
 	private String regDate;
 	private List<MultipartFile> attach;
 	private List<BoardFile> boardFiles;
+	private int likes;
+	private int dislikes;
 	
 	public int getNo() {
 		return no;
@@ -55,6 +57,18 @@ public class Board {
 	}
 	public void setBoardFiles(List<BoardFile> boardFiles) {
 		this.boardFiles = boardFiles;
+	}
+	public int getLikes() {
+		return likes;
+	}
+	public void setLikes(int likes) {
+		this.likes = likes;
+	}
+	public int getDislikes() {
+		return dislikes;
+	}
+	public void setDislikes(int dislikes) {
+		this.dislikes = dislikes;
 	}
 }
 
