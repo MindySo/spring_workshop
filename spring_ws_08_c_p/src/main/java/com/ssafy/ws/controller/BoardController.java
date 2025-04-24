@@ -54,7 +54,7 @@ public class BoardController {
      * Q3. 게시글 생성 (POST /board)
      */
 	@PostMapping("/board")
-	public int detail(Board board) {
+	public int detail(@RequestBody Board board) {
 		return boardService.writeBoard(board);
 	}
 
@@ -62,7 +62,7 @@ public class BoardController {
      * Q4. 게시글 수정 (PUT /board/{id})
      */
 	@PutMapping("/board")
-	public int modify(Board board) {
+	public int modify(@RequestBody Board board) {
 		return boardService.modifyBoard(board);
 	}
 
