@@ -37,6 +37,11 @@
 		</c:forEach>
 	</table>
 	
+	밥 검색
+	<form method="get" action="${pageContext.request.contextPath}/food">
+		<input type="text" name="name" />
+		<button>검색</button>
+	</form>
 	
 	<a href="detail">상세</a>	
 
