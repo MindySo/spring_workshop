@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.ssafy.exam.external.api.AllergyCollector;
 import com.ssafy.exam.external.api.ApiExplorer;
 import com.ssafy.exam.model.dto.Food;
 
@@ -12,8 +13,10 @@ import com.ssafy.exam.model.dto.Food;
 public class FoodServiceImpl implements FoodService{
 	
 	private final ApiExplorer apiExplorer;
-	public FoodServiceImpl(ApiExplorer apiExplorer) {
+	private final AllergyCollector allergyCollector;
+	public FoodServiceImpl(ApiExplorer apiExplorer, AllergyCollector allergyCollector) {
 		this.apiExplorer = apiExplorer;
+		this.allergyCollector = allergyCollector;
 	}
 	
 	@Override
@@ -24,4 +27,11 @@ public class FoodServiceImpl implements FoodService{
 		}
 	    return foodList;
 	}
+
+	@Override
+	public void getAllergic() throws Exception {
+		allergyCollector.getAllergic();
+	}
+	
+	
 }

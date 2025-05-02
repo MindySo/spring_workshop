@@ -37,7 +37,7 @@ public class BoardController {
     /*
      *  Q1. 게시글 전체 목록 조회 (GET /board)
      */
-	@GetMapping("/board")
+	@GetMapping()
 	public List<Board> list(SearchCondition searchCondition) {
 		return boardService.getBoardList(searchCondition);
 	}
@@ -45,7 +45,7 @@ public class BoardController {
 	/*
 	 * Q2. 게시글 상세 조회 (GET /board/{id})
 	 */
-	@GetMapping("/board/{id}")
+	@GetMapping("/{id}")
 	public Board detail(@PathVariable("id") int id) {
 		return boardService.readBoard(id);
 	}
@@ -53,7 +53,7 @@ public class BoardController {
     /*
      * Q3. 게시글 생성 (POST /board)
      */
-	@PostMapping("/board")
+	@PostMapping()
 	public int detail(@RequestBody Board board) {
 		return boardService.writeBoard(board);
 	}
@@ -61,7 +61,7 @@ public class BoardController {
     /*
      * Q4. 게시글 수정 (PUT /board/{id})
      */
-	@PutMapping("/board")
+	@PutMapping("/{id}")
 	public int modify(@RequestBody Board board) {
 		return boardService.modifyBoard(board);
 	}
@@ -69,7 +69,7 @@ public class BoardController {
 	/*
 	 * Q5. 게시글 삭제 (DELETE /board/{id})
 	 */
-	@DeleteMapping("/board/{id}")
+	@DeleteMapping("/{id}")
 	public int modify(@PathVariable("id") int id) {
 		return boardService.removeBoard(id);
 	}

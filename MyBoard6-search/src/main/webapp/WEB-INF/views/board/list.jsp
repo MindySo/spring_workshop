@@ -42,9 +42,10 @@
 		<input type="text" name="name" />
 		<button>검색</button>
 	</form>
+
+	<a href="${pageContext.request.contextPath}/food/allergic">알러지정보</a>	
 	
 	<a href="detail">상세</a>	
-
 
 	<a href="write">등록</a>	
 	

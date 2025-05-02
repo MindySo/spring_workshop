@@ -82,7 +82,7 @@ public class ApiExplorer {
         urlBuilder.append("&" + URLEncoder.encode("service_Type","UTF-8") + "=" + URLEncoder.encode("xml", "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("Page_No","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("Page_Size","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8"));
-        System.out.println(fdCode);
+//        System.out.println(fdCode);
         urlBuilder.append("&" + URLEncoder.encode("food_Code","UTF-8") + "=" + URLEncoder.encode(fdCode, "UTF-8")); // [수정] 동적 파라미터
 
         URL url = new URL(urlBuilder.toString());
@@ -107,7 +107,7 @@ public class ApiExplorer {
 
         // [추가] JSON 파싱
         String xml = sb.toString();
-        System.out.println("응답 XML:\n" + xml);
+//        System.out.println("응답 XML:\n" + xml);
 
         XmlMapper xmlMapper = new XmlMapper();
         JsonNode root = xmlMapper.readTree(xml);
