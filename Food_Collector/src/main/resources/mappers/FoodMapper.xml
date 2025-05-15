@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.food.dao.FoodDao">
+
+  <insert id="insertFood" parameterType="com.ssafy.food.dto.Food">
+    INSERT INTO food (
+      food_code, food_name, fd_name, group_name, allergy_info, image_url
+    ) VALUES (
+      #{foodCode}, #{foodName}, #{fdName}, #{groupName}, #{allergyInfo}, #{imageUrl}
+    )
+  </insert>
+
+  <select id="selectFoodByCode" parameterType="String" resultType="com.ssafy.food.dto.Food">
+    SELECT * FROM food WHERE food_code = #{foodCode}
+  </select>
+
+  <select id="selectAllFoods" resultType="com.ssafy.food.dto.Food">
+    SELECT * FROM food
+  </select>
+
+</mapper>

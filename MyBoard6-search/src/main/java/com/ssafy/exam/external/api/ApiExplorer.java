@@ -124,6 +124,8 @@ public class ApiExplorer {
             result.add(parseFoodNutri(items));
         }
 
+//        System.out.println(items);
+        
         return result;
     }
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.food.dao.MainFoodDao">
+
+	<insert id="insertMainFood"
+		parameterType="com.ssafy.food.dto.MainFood">
+		INSERT INTO main_food (
+		main_food_code, main_food_name,
+		upper_group, sub_group, main_food_weight
+		) VALUES (
+		#{mainFoodCode},
+		#{mainFoodName}, #{upperGroup}, #{subGroup}, #{mainFoodWeight}
+		)
+	</insert>
+
+	<select id="selectMainFoodByCode" parameterType="String"
+		resultType="com.ssafy.food.dto.MainFood">
+		SELECT * FROM main_food WHERE main_food_code =
+		#{mainFoodCode}
+	</select>
+
+	<select id="selectDetailByMainFoodCode" parameterType="String"
+		resultType="com.ssafy.food.dto.MainFoodDetail">
+		SELECT * FROM main_food_detail WHERE main_food_code = #{mainFoodCode}
+	</select>
+
+	<insert id="insertMainFoodDetail"
+		parameterType="com.ssafy.food.dto.MainFoodDetail">
+		INSERT INTO main_food_detail (
+		main_food_code, food_code,
+		food_weight
+		) VALUES (
+		#{mainFoodCode}, #{foodCode}, #{foodWeight}
+		)
+	</insert>
+
+</mapper>

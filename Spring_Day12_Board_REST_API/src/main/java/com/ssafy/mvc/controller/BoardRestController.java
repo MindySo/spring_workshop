@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin("*")
 @Tag(name= "Board RESTful API", description="crud 기능")
 public class BoardRestController {
 	// 서비스 의존성 주입
@@ -34,29 +36,29 @@ public class BoardRestController {
 		this.boardService = boardService;
 	}
 	
-//	// 게시글 전체 조회
-//	@GetMapping("/board")
-//	public ResponseEntity<List<Board>> list() {
-//		List<Board> list = boardService.getBoardList();
-//		
-////		HttpStatus.OK : 200 리턴
-////		return new ResponseEntity<>(list, HttpStatus.OK);	
-//		return ResponseEntity.ok(list);
-//	}
-	
-	
-	// 검색
+	// 게시글 전체 조회
 	@GetMapping("/board")
-	@Operation(summary = "게시글 조회 및 검색", description = "조건에 따른 검색을 수행")
-	public ResponseEntity<?> list(@ModelAttribute SearchCondition searchCondition) {
-		List<Board> list = boardService.search(searchCondition);
+	public ResponseEntity<List<Board>> list() {
+		List<Board> list = boardService.getBoardList();
 		
-		if(list == null || list.size() == 0) {
-			return new ResponseEntity<List<Board>>(list, HttpStatus.NO_CONTENT);	
-		}
-		
-		return new ResponseEntity<List<Board>>(list, HttpStatus.OK);	
+//		HttpStatus.OK : 200 리턴
+//		return new ResponseEntity<>(list, HttpStatus.OK);	
+		return ResponseEntity.ok(list);
 	}
+	
+	
+//	// 검색
+//	@GetMapping("/board")
+//	@Operation(summary = "게시글 조회 및 검색", description = "조건에 따른 검색을 수행")
+//	public ResponseEntity<?> list(@RequestBody SearchCondition searchCondition) {
+//		List<Board> list = boardService.search(searchCondition);
+//		
+//		if(list == null || list.size() == 0) {
+//			return new ResponseEntity<List<Board>>(list, HttpStatus.NO_CONTENT);	
+//		}
+//		
+//		return new ResponseEntity<List<Board>>(list, HttpStatus.OK);	
+//	}
 	
 	// 상세보기
 	@GetMapping("/board/{id}")
@@ -73,9 +75,9 @@ public class BoardRestController {
 	
 	// 게시글 등록(Form 데이터)
 	@PostMapping("/board")
-	public ResponseEntity<Void> write(@ModelAttribute Board board) {
+//	public ResponseEntity<Void> write(@ModelAttribute Board board) {
+	public ResponseEntity<Void> write(@RequestBody Board board) {
 		boardService.writeBoard(board);
-		System.out.println(board);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 	
