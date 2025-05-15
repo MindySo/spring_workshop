@@ -1,5 +1,6 @@
 package com.ssafy.exam.controller;
 
+import com.ssafy.exam.external.api.ApiExplorer;
 import com.ssafy.exam.model.dto.Food;
 import com.ssafy.exam.model.dto.MainFood;
 import com.ssafy.exam.model.dto.MainFoodDetail;
@@ -8,6 +9,7 @@ import com.ssafy.exam.model.service.MainFoodService;
 import com.ssafy.exam.model.service.FoodService;
 import com.ssafy.exam.model.service.NutritionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +23,29 @@ public class MainFoodController {
     private final MainFoodService mainFoodService;
     private final FoodService foodService;
     private final NutritionService nutritionService;
+    private final ApiExplorer apiExplorer;
 
-    @Autowired
-    public MainFoodController(MainFoodService mainFoodService, FoodService foodService, NutritionService nutritionService) {
-        this.mainFoodService = mainFoodService;
-        this.foodService = foodService;
-        this.nutritionService = nutritionService;
+    public MainFoodController(MainFoodService mainFoodService, FoodService foodService,
+			NutritionService nutritionService, ApiExplorer apiExplorer) {
+		this.mainFoodService = mainFoodService;
+		this.foodService = foodService;
+		this.nutritionService = nutritionService;
+		this.apiExplorer = apiExplorer;
+	}
+
+
+	@PostMapping("/fetch/{foodName}")
+    public ResponseEntity<String> fetchAndSave(@PathVariable String foodName) {
+        try {
+            List<MainFoodWrapper> wrappers = apiExplorer.fetchMainFoodWithDetails(foodName);
+            mainFoodService.saveMainFoodWrapper(wrappers);  // 👈 여기서 저장
+            return ResponseEntity.ok("저장 완료");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("저장 실패: " + e.getMessage());
+        }
     }
-
+    
     @PostMapping("/save")
     public ResponseEntity<String> saveMainFood(@RequestBody MainFoodWrapper wrapper) {
         mainFoodService.saveMainFoodWithDetails(wrapper.getMainFood(), wrapper.getDetails());
