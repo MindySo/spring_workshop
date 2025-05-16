@@ -1,5 +1,8 @@
 use food_db;
--- main_food_detail과 nutrition을 합쳐야 할 것 같다.
+-- main_food_detail과 nutrition을 합쳐야 할 것 같다. -> 합침
+-- 요리 테이블에도 nutrition을 두는게 나을 것 같다.
+-- 그러면 nomnom_db에서 food 테이블에는 food_name이 없어도 된다.(또 없어도 되는 컬럼 있는지 확인)
+-- food테이블 명칭을 바꿔야 한다 ingredient로? 
 -- 요리 테이블
 CREATE TABLE main_food (
     main_food_code VARCHAR(20) PRIMARY KEY,   -- D015039
