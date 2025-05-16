@@ -3,7 +3,6 @@ package com.ssafy.exam.model.dto;
 public class Food {
     private String foodCode;
     private String foodName;
-    private String fdName;
     private String groupName;
     private String allergyInfo;
     private String imageUrl;
@@ -24,14 +23,6 @@ public class Food {
 
     public void setFoodName(String foodName) {
         this.foodName = foodName;
-    }
-
-    public String getFdName() {
-        return fdName;
-    }
-
-    public void setFdName(String fdName) {
-        this.fdName = fdName;
     }
 
     public String getGroupName() {

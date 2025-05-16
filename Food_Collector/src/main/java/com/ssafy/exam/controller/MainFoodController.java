@@ -4,16 +4,14 @@ import com.ssafy.exam.external.api.ApiExplorer;
 import com.ssafy.exam.model.dto.Food;
 import com.ssafy.exam.model.dto.MainFood;
 import com.ssafy.exam.model.dto.MainFoodDetail;
-import com.ssafy.exam.model.dto.Nutrition;
 import com.ssafy.exam.model.service.MainFoodService;
 import com.ssafy.exam.model.service.FoodService;
-import com.ssafy.exam.model.service.NutritionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -22,23 +20,36 @@ public class MainFoodController {
 
     private final MainFoodService mainFoodService;
     private final FoodService foodService;
-    private final NutritionService nutritionService;
     private final ApiExplorer apiExplorer;
+    
 
-    public MainFoodController(MainFoodService mainFoodService, FoodService foodService,
-			NutritionService nutritionService, ApiExplorer apiExplorer) {
+    public MainFoodController(MainFoodService mainFoodService, FoodService foodService, ApiExplorer apiExplorer) {
 		this.mainFoodService = mainFoodService;
 		this.foodService = foodService;
-		this.nutritionService = nutritionService;
 		this.apiExplorer = apiExplorer;
 	}
-
-
-	@PostMapping("/fetch/{foodName}")
-    public ResponseEntity<String> fetchAndSave(@PathVariable String foodName) {
+    
+	
+	private static final List<String> keywordList = Arrays.asList(
+		    "갈", "감", "강", "개", "게", "고", "곡", "곤", "공", "과", "관", "광", "국", "군", "굴", "김", "깍", "깻", "깡", "까", "꼬", "꽁",
+		    "나", "낙", "냉", "너", "노", "녹", "농", "누", "느", "다", "닭", "달", "당", "더", "도", "돌", "동", "돼", "된", "두", "디", "라",
+		    "레", "로", "류", "마", "만", "매", "멸", "메", "명", "모", "무", "미", "배", "볶", "보", "부", "비", "사", "삼", "새", "샐", "설",
+		    "소", "수", "순", "시", "식", "쌈", "아", "양", "어", "연", "오", "완", "우", "유", "육", "음", "이", "자", "장", "전", "정", "조",
+		    "죽", "짜", "찜", "찐", "차", "채", "참", "청", "초", "치", "카", "케", "콩", "탕", "토", "튀", "파", "팥", "편", "포", "피", "한",
+		    "해", "햄", "호", "홍"
+		);
+	
+///////////////////////////////// 이거!!!! /////////////////////////////////////////
+	@PostMapping("/fetch")
+//	public ResponseEntity<String> fetchAndSave(@PathVariable String str) {
+    public ResponseEntity<String> fetchAndSave() {
         try {
-            List<MainFoodWrapper> wrappers = apiExplorer.fetchMainFoodWithDetails(foodName);
-            mainFoodService.saveMainFoodWrapper(wrappers);  // 👈 여기서 저장
+        	
+        	for (char ch = '다'; ch <= '딯'; ch++) {
+        	    List<MainFoodWrapper> wrappers = apiExplorer.fetchMainFoodWithDetails(String.valueOf(ch));
+        	    mainFoodService.saveMainFoodWrapper(wrappers);  // 👈 여기서 저장
+        	}
+        	
             return ResponseEntity.ok("저장 완료");
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,8 +63,8 @@ public class MainFoodController {
         for (Food food : wrapper.getFoods()) {
             foodService.saveFood(food);
         }
-        for (Nutrition nut : wrapper.getNutritions()) {
-            nutritionService.saveNutrition(nut);
+        for (MainFoodDetail mfd : wrapper.getDetails()) {
+            mainFoodService.saveNutrition(mfd);
         }
         return ResponseEntity.ok("저장 완료");
     }
@@ -63,21 +74,20 @@ public class MainFoodController {
         return ResponseEntity.ok(mainFoodService.getMainFoodByCode(code));
     }
     
-    @GetMapping("/fetch")
-    public ResponseEntity<String> fetchAndSaveFromOpenApi(@RequestParam String foodName) throws Exception {
-        try {
-            mainFoodService.fetchAndSaveMainFoodByName(foodName);
-            return ResponseEntity.ok("API에서 데이터 가져와서 저장 완료");
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("오류 발생: " + e.getMessage());
-        }
-    }
+//    @GetMapping("/fetch")
+//    public ResponseEntity<String> fetchAndSaveFromOpenApi(@RequestParam String foodName) throws Exception {
+//        try {
+//            mainFoodService.fetchAndSaveMainFoodByName(foodName);
+//            return ResponseEntity.ok("API에서 데이터 가져와서 저장 완료");
+//        } catch (IOException e) {
+//            return ResponseEntity.internalServerError().body("오류 발생: " + e.getMessage());
+//        }
+//    }
 
     public static class MainFoodWrapper {
         private MainFood mainFood;
         private List<MainFoodDetail> details;
         private List<Food> foods;
-        private List<Nutrition> nutritions;
 
         public MainFood getMainFood() {
             return mainFood;
@@ -101,14 +111,6 @@ public class MainFoodController {
 
         public void setFoods(List<Food> foods) {
             this.foods = foods;
-        }
-
-        public List<Nutrition> getNutritions() {
-            return nutritions;
-        }
-
-        public void setNutritions(List<Nutrition> nutritions) {
-            this.nutritions = nutritions;
         }
     }
 }

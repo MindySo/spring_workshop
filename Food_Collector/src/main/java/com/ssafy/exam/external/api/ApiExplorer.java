@@ -7,7 +7,6 @@ import com.ssafy.exam.controller.MainFoodController.MainFoodWrapper;
 import com.ssafy.exam.model.dto.Food;
 import com.ssafy.exam.model.dto.MainFood;
 import com.ssafy.exam.model.dto.MainFoodDetail;
-import com.ssafy.exam.model.dto.Nutrition;
 import com.ssafy.exam.model.service.MainFoodService;
 
 import org.springframework.stereotype.Component;
@@ -19,181 +18,225 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class ApiExplorer {
 	private static final String SERVICE_KEY = "BUjKsgbwH%2F7q6l%2FTqMjSBFtncnNr8macDqAIKq0EjIZggZ7F2qFyzgbPYGIk6Hpal29R42e3jloOkitqeRsRHg%3D%3D";
 
+	////////////////////////////// 음식 저장 ///////////////////////////////////
 	public List<MainFoodWrapper> fetchMainFoodWithDetails(String foodName) throws Exception {
-	    StringBuilder urlBuilder = new StringBuilder(
-	            "http://apis.data.go.kr/1390802/AgriFood/FdFoodImage/getKoreanFoodFdFoodImageList");
-	    urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
-	    urlBuilder.append("&" + encode("service_Type") + "=xml");
-	    urlBuilder.append("&" + encode("Page_No") + "=2");
-	    urlBuilder.append("&" + encode("Page_Size") + "=20");
-	    urlBuilder.append("&" + encode("food_Name") + "=" + encode(foodName));
+		System.out.println(foodName);
+		List<MainFoodWrapper> wrappers = new ArrayList<>();
+		int pageNo = 1;
 
-	    String xml = sendRequest(urlBuilder.toString(), "application/xml");
-	    XmlMapper mapper = new XmlMapper();
-	    JsonNode root = mapper.readTree(xml);
-	    JsonNode items = root.path("body").path("items").path("item");
-	    
+		while (true) {
+			StringBuilder urlBuilder = new StringBuilder(
+					"http://apis.data.go.kr/1390802/AgriFood/FdFoodImage/getKoreanFoodFdFoodImageList");
+			urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
+			urlBuilder.append("&" + encode("service_Type") + "=xml");
+			urlBuilder.append("&" + encode("Page_No") + "=" + pageNo);
+			urlBuilder.append("&" + encode("Page_Size") + "=20");
+			urlBuilder.append("&" + encode("food_Name") + "=" + encode(foodName));
 
-	    List<MainFoodWrapper> wrappers = new ArrayList<>();
+			String xml = sendRequest(urlBuilder.toString(), "application/xml");
+			
+			if (xml.contains("LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR")) {
+			    System.out.println("요청 제한 초과! 중단 또는 일정 시간 대기 필요.");
+			    System.exit(0); // 또는 sleep 후 재시도
+			}
+			
+			XmlMapper mapper = new XmlMapper();
+			JsonNode root = mapper.readTree(xml);
+			JsonNode items = root.path("body").path("items").path("item");
 
-	    if (items.isArray()) {
-	        for (JsonNode item : items) {
-	            MainFood mainFood = parseMainFood(item);
-	            List<Food> foods = extractFoods(item);
-	            List<MainFoodDetail> details = extractDetailsFromFoodList(item, mainFood.getMainFoodCode());
+			// 데이터 없으면 종료
+			if (items.isMissingNode() || (items.isArray() && items.size() == 0)) {
+				break;
+			}
 
-	            // 순환 참조 없이 Wrapper 구성
-	            MainFoodWrapper wrapper = new MainFoodWrapper();
-	            wrapper.setMainFood(mainFood);
-	            wrapper.setFoods(foods);
-	            wrapper.setDetails(details);
+			if (items.isArray()) {
+				for (JsonNode item : items) {
+					MainFood mainFood = parseMainFood(item);
+					List<Food> foods = extractFoods(item);
+					List<MainFoodDetail> details = extractDetailsFromFoodList(item, mainFood.getMainFoodCode());
 
-	            wrappers.add(wrapper);
-	        }
-	    } else if (!items.isMissingNode()) {
-	        MainFood mainFood = parseMainFood(items);
-	        List<Food> foods = extractFoods(items);
-	        List<MainFoodDetail> details = extractDetailsFromFoodList(items, mainFood.getMainFoodCode());
+					// 순환 참조 없이 Wrapper 구성
+					MainFoodWrapper wrapper = new MainFoodWrapper();
+					wrapper.setMainFood(mainFood);
+					wrapper.setFoods(foods);
+					wrapper.setDetails(details);
 
-	        MainFoodWrapper wrapper = new MainFoodWrapper();
-	        wrapper.setMainFood(mainFood);
-	        wrapper.setFoods(foods);
-	        wrapper.setDetails(details);
+					wrappers.add(wrapper);
+				}
+			} else if (!items.isMissingNode()) {
+				MainFood mainFood = parseMainFood(items);
+				List<Food> foods = extractFoods(items);
+				List<MainFoodDetail> details = extractDetailsFromFoodList(items, mainFood.getMainFoodCode());
 
-	        wrappers.add(wrapper);
-	    } else {
-	        System.out.println("⚠️ item 노드가 존재하지 않음!");
-	    }
+				MainFoodWrapper wrapper = new MainFoodWrapper();
+				wrapper.setMainFood(mainFood);
+				wrapper.setFoods(foods);
+				wrapper.setDetails(details);
 
-	    return wrappers;
+				wrappers.add(wrapper);
+			} else {
+				System.out.println("⚠️ item 노드가 존재하지 않음!");
+			}
+			pageNo++;
+		}
+
+		return wrappers;
 	}
-	
+
 	public List<Food> fetchFoodsByName(String foodName) throws Exception {
-		StringBuilder urlBuilder = new StringBuilder(
-				"http://apis.data.go.kr/1390802/AgriFood/FdFoodImage/getKoreanFoodFdFoodImageList");
-		urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
-		urlBuilder.append("&" + URLEncoder.encode("service_Type", "UTF-8") + "=" + URLEncoder.encode("xml", "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("Page_No", "UTF-8") + "=" + URLEncoder.encode("2", "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("Page_Size", "UTF-8") + "=" + URLEncoder.encode("20", "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("food_Name", "UTF-8") + "=" + URLEncoder.encode(foodName, "UTF-8"));
-
-		String xml = sendRequest(urlBuilder.toString(), "application/json");
-		System.out.println(xml);
-
-		// ✅ JSON 응답 → ObjectMapper 사용
-		XmlMapper mapper = new XmlMapper();
-		JsonNode root = mapper.readTree(xml);
-		JsonNode items = root.path("body").path("items").path("item");
 		List<Food> result = new ArrayList<>();
+		int pageNo = 1;
 
-		if (items.isArray()) {
-		    for (JsonNode item : items) {
-		        result.add(parseFood(item));
-		    }
-		} else {
-		    result.add(parseFood(items));
+		while (true) {
+			StringBuilder urlBuilder = new StringBuilder(
+					"http://apis.data.go.kr/1390802/AgriFood/FdFoodImage/getKoreanFoodFdFoodImageList");
+			urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
+			urlBuilder
+					.append("&" + URLEncoder.encode("service_Type", "UTF-8") + "=" + URLEncoder.encode("xml", "UTF-8"));
+			urlBuilder.append(
+					"&" + URLEncoder.encode("Page_No", "UTF-8") + "=" + URLEncoder.encode((pageNo + ""), "UTF-8"));
+			urlBuilder.append("&" + URLEncoder.encode("Page_Size", "UTF-8") + "=" + URLEncoder.encode("20", "UTF-8"));
+			urlBuilder
+					.append("&" + URLEncoder.encode("food_Name", "UTF-8") + "=" + URLEncoder.encode(foodName, "UTF-8"));
+
+			String xml = sendRequest(urlBuilder.toString(), "application/json");
+			System.out.println(xml);
+
+			// ✅ JSON 응답 → ObjectMapper 사용
+			XmlMapper mapper = new XmlMapper();
+			JsonNode root = mapper.readTree(xml);
+			JsonNode items = root.path("body").path("items").path("item");
+
+			// 데이터 없으면 종료
+			if (items.isMissingNode() || (items.isArray() && items.size() == 0)) {
+				break;
+			}
+
+			if (items.isArray()) {
+				for (JsonNode item : items) {
+					result.add(parseFood(item));
+				}
+			} else {
+				result.add(parseFood(items));
+			}
+			pageNo++;
 		}
 
 		return result;
 	}
+
 	private MainFood parseMainFood(JsonNode item) {
-	    MainFood mf = new MainFood();
-	    mf.setMainFoodCode(item.path("fd_Code").asText());
-	    mf.setMainFoodName(item.path("fd_Nm").asText());
-	    mf.setUpperGroup(item.path("upper_Fd_Grupp_Nm").asText());
-	    mf.setSubGroup(item.path("fd_Grupp_Nm").asText());
-	    mf.setMainFoodWeight(item.path("fd_Wgh").asDouble(0));
-	    return mf;
+		MainFood mf = new MainFood();
+		mf.setMainFoodCode(item.path("fd_Code").asText());
+		mf.setMainFoodName(item.path("fd_Nm").asText());
+		mf.setUpperGroup(item.path("upper_Fd_Grupp_Nm").asText());
+		mf.setSubGroup(item.path("fd_Grupp_Nm").asText());
+		mf.setMainFoodWeight(item.path("fd_Wgh").asDouble(0));
+		return mf;
 	}
 
 	private List<Food> extractFoods(JsonNode item) {
-	    List<Food> list = new ArrayList<>();
-	    JsonNode foodList = item.path("food_List").path("food");
+		List<Food> list = new ArrayList<>();
+		JsonNode foodList = item.path("food_List").path("food");
 
-	    if (foodList.isArray()) {
-	        for (JsonNode node : foodList) {
-	            list.add(parseFood(node));
-	        }
-	    } else if (!foodList.isMissingNode()) {
-	        list.add(parseFood(foodList));
-	    }
+		if (foodList.isArray()) {
+			for (JsonNode node : foodList) {
+				list.add(parseFood(node));
+			}
+		} else if (!foodList.isMissingNode()) {
+			list.add(parseFood(foodList));
+		}
 
-	    return list;
+		return list;
 	}
 
 	private Food parseFood(JsonNode node) {
-	    Food food = new Food();
-	    food.setFoodCode(node.path("food_Code").asText());
-	    food.setFdName(node.path("food_Nm").asText());
-	    food.setFoodName(node.path("food_Nm").asText());
-	    food.setGroupName(node.path("nation_Std_Food_Grupp_Code_Nm").asText());
-	    food.setAllergyInfo(node.path("allrgy_Info").asText());
-	    food.setImageUrl(node.path("food_Image_Address").asText());
-	    return food;
+		Food food = new Food();
+		food.setFoodCode(node.path("food_Code").asText());
+		food.setFoodName(node.path("food_Nm").asText());
+		food.setGroupName(node.path("nation_Std_Food_Grupp_Code_Nm").asText());
+		food.setAllergyInfo(node.path("allrgy_Info").asText());
+		food.setImageUrl(node.path("food_Image_Address").asText());
+		return food;
 	}
 
 	private List<MainFoodDetail> extractDetailsFromFoodList(JsonNode item, String mainFoodCode) {
-	    List<MainFoodDetail> details = new ArrayList<>();
-	    JsonNode foodList = item.path("food_List").path("food");
-
-	    if (foodList.isArray()) {
-	        for (JsonNode food : foodList) {
-	            details.add(parseDetail(food, mainFoodCode));
-	        }
-	    } else if (!foodList.isMissingNode()) {
-	        details.add(parseDetail(foodList, mainFoodCode));
-	    }
-
-	    return details;
-	}
-
-	private MainFoodDetail parseDetail(JsonNode food, String mainFoodCode) {
-	    MainFoodDetail detail = new MainFoodDetail();
-	    detail.setMainFoodCode(mainFoodCode);
-	    detail.setFoodCode(food.path("food_Code").asText());
-	    detail.setFoodWeight(food.path("food_Wgh").asDouble(0));
-	    return detail;
-	}
-
-
-
-	public List<MainFoodDetail> fetchDetailsByMainFoodCode(String mainFoodCode) throws Exception {
-		StringBuilder urlBuilder = new StringBuilder(
-				"http://apis.data.go.kr/1390802/AgriFood/MzenFoodNutri/getKoreanFoodIdntList");
-		urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
-		urlBuilder.append("&" + URLEncoder.encode("service_Type", "UTF-8") + "=" + URLEncoder.encode("xml", "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("Page_No", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8"));
-		urlBuilder.append("&" + URLEncoder.encode("Page_Size", "UTF-8") + "=" + URLEncoder.encode("100", "UTF-8"));
-		urlBuilder.append("&" + encode("main_Food_Code") + "=" + URLEncoder.encode(mainFoodCode, "UTF-8"));
-
-		String xml = sendRequest(urlBuilder.toString(), "application/xml");
-
-		XmlMapper xmlMapper = new XmlMapper();
-		JsonNode root = xmlMapper.readTree(xml);
-		JsonNode items = root.path("body").path("items").path("item").path("idnt_List");
-
 		List<MainFoodDetail> details = new ArrayList<>();
-		if (items.isArray()) {
-			for (JsonNode item : items) {
-				details.add(parseMainFoodDetail(item, mainFoodCode));
+		JsonNode foodList = item.path("food_List").path("food");
+
+		if (foodList.isArray()) {
+			for (JsonNode food : foodList) {
+				details.add(parseDetail(food, mainFoodCode));
 			}
-		} else {
-			details.add(parseMainFoodDetail(items, mainFoodCode));
+		} else if (!foodList.isMissingNode()) {
+			details.add(parseDetail(foodList, mainFoodCode));
 		}
 
 		return details;
 	}
 
-	private Nutrition parseNutrition(String foodCode, JsonNode item) {
-		Nutrition dto = new Nutrition();
-		dto.setFoodCode(foodCode);
-		dto.setWeight(item.path("food_Weight").asDouble(0));
+	private MainFoodDetail parseDetail(JsonNode food, String mainFoodCode) {
+		MainFoodDetail detail = new MainFoodDetail();
+		detail.setMainFoodCode(mainFoodCode);
+		detail.setFoodCode(food.path("food_Code").asText());
+		detail.setFoodWeight(food.path("food_Wgh").asDouble(0));
+		return detail;
+	}
+
+	/////////////////////////////////////// 영양소 저장 //////////////////////////////////
+	public List<MainFoodDetail> fetchDetailsByMainFoodCode(String mainFoodCode) throws Exception {
+		StringBuilder urlBuilder = new StringBuilder(
+				"http://apis.data.go.kr/1390802/AgriFood/MzenFoodNutri/getKoreanFoodIdntList");
+		urlBuilder.append("?" + encode("serviceKey") + "=" + SERVICE_KEY);
+		urlBuilder.append("&" + encode("food_Code") + "=" + URLEncoder.encode(mainFoodCode, "UTF-8"));
+
+		String xml = sendRequest(urlBuilder.toString(), "application/xml");
+
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode root = xmlMapper.readTree(xml);
+		JsonNode items = root.path("body").path("items").path("item");
+		System.out.println("item" + mainFoodCode);
+
+		List<MainFoodDetail> details = new ArrayList<>();
+		if (items.isArray()) {
+		    for (JsonNode item : items) {
+		        JsonNode idntListNode = item.path("idnt_List");
+
+		        if (idntListNode.isArray()) {
+		            for (JsonNode idnt : idntListNode) {
+		                details.add(parseNutrition(mainFoodCode, idnt)); // ✅ 각각의 idnt만 넘기기
+		            }
+		        } else if (!idntListNode.isMissingNode()) {
+		            details.add(parseNutrition(mainFoodCode, idntListNode));
+		        }
+		    }
+		} else if (!items.isMissingNode()) {
+		    JsonNode idntListNode = items.path("idnt_List");
+
+		    if (idntListNode.isArray()) {
+		        for (JsonNode idnt : idntListNode) {
+		            details.add(parseNutrition(mainFoodCode, idnt)); // ✅ 각각의 idnt만 넘기기
+		        }
+		    } else if (!idntListNode.isMissingNode()) {
+		        details.add(parseNutrition(mainFoodCode, idntListNode));
+		    }
+		}
+
+		return details;
+	}
+
+	private MainFoodDetail parseNutrition(String MainfoodCode, JsonNode item) {
+		MainFoodDetail dto = new MainFoodDetail();
+		dto.setMainFoodCode(MainfoodCode);
+		dto.setFoodCode(item.path("food_Code").asText());
+		dto.setFoodWeight(item.path("food_Weight").asDouble(0));
 		dto.setEnergyQy(item.path("energy_Qy").asDouble(0));
 		dto.setWaterQy(item.path("water_Qy").asDouble(0));
 		dto.setProtQy(item.path("prot_Qy").asDouble(0));
@@ -242,8 +285,8 @@ public class ApiExplorer {
 		return dto;
 	}
 
-	public List<Nutrition> fetchNutrientsByFdCode(String foodCode) throws IOException {
-		List<Nutrition> result = new ArrayList<>();
+	public List<MainFoodDetail> fetchNutrientsByFdCode(String foodCode) throws IOException {
+		List<MainFoodDetail> result = new ArrayList<>();
 
 		StringBuilder urlBuilder = new StringBuilder(
 				"http://apis.data.go.kr/1390802/AgriFood/MzenFoodNutri/getKoreanFoodIdntList");

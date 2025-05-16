@@ -11,5 +11,7 @@ public interface MainFoodService {
     void saveMainFoodWithDetails(MainFood mainFood, List<MainFoodDetail> details);
     MainFood getMainFoodByCode(String code);
 	void fetchAndSaveMainFoodByName(String foodName) throws Exception;
-	void saveMainFoodWrapper(List<MainFoodWrapper> wrappers);
+	void saveMainFoodWrapper(List<MainFoodWrapper> wrappers) throws Exception;
+    void saveNutrition(MainFoodDetail detail);
+//    List<MainFoodDetail> getNutritionByFoodCode(String foodCode);
 }

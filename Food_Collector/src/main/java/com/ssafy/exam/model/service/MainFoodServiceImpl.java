@@ -12,7 +12,6 @@ import com.ssafy.exam.model.dao.MainFoodDao;
 import com.ssafy.exam.model.dto.Food;
 import com.ssafy.exam.model.dto.MainFood;
 import com.ssafy.exam.model.dto.MainFoodDetail;
-import com.ssafy.exam.model.dto.Nutrition;
 
 @Service
 public class MainFoodServiceImpl implements MainFoodService {
@@ -21,15 +20,13 @@ public class MainFoodServiceImpl implements MainFoodService {
 	private final FoodDao foodDao;
 	private final ApiExplorer apiExplorer;
 	private final FoodService foodService;
-	private final NutritionService nutritionService;
 
 	public MainFoodServiceImpl(MainFoodDao mainFoodDao, FoodDao foodDao, ApiExplorer apiExplorer,
-			FoodService foodService, NutritionService nutritionService) {
+			FoodService foodService) {
 		this.mainFoodDao = mainFoodDao;
 		this.foodDao = foodDao;
 		this.apiExplorer = apiExplorer;
 		this.foodService = foodService;
-		this.nutritionService = nutritionService;
 	}
 
 	@Transactional
@@ -57,15 +54,15 @@ public class MainFoodServiceImpl implements MainFoodService {
 			}
 
 			// 영양소 정보 가져오기
-			List<Nutrition> nutritions = apiExplorer.fetchNutrientsByFdCode(food.getFoodCode());
-			for (Nutrition nut : nutritions) {
-				nutritionService.saveNutrition(nut);
+			List<MainFoodDetail> nutritions = apiExplorer.fetchNutrientsByFdCode(food.getFoodCode());
+			for (MainFoodDetail nut : nutritions) {
+				mainFoodDao.updateMainFoodDetail(nut);
 			}
 		}
 	}
 
 	@Override
-	public void saveMainFoodWrapper(List<MainFoodWrapper> wrappers) {
+	public void saveMainFoodWrapper(List<MainFoodWrapper> wrappers) throws Exception {
 		for (MainFoodWrapper wrapper : wrappers) {
 			MainFood mainFood = wrapper.getMainFood();
 			List<Food> foods = wrapper.getFoods();
@@ -81,11 +78,33 @@ public class MainFoodServiceImpl implements MainFoodService {
 				}
 			}
 
+			
+			
 			// 상세정보 저장
 			for (MainFoodDetail detail : details) {
-				mainFoodDao.insertMainFoodDetail(detail);
+				MainFoodDetail existing = mainFoodDao.selectDetail(mainFood.getMainFoodCode(), detail.getFoodCode());
+				
+				if (existing == null) {
+					mainFoodDao.insertMainFoodDetail(detail);
+				}
 			}
+			
+			// 4. 💥 영양소 정보 업데이트 추가
+		    List<MainFoodDetail> updatedDetails = apiExplorer.fetchDetailsByMainFoodCode(mainFood.getMainFoodCode());
+		    for (MainFoodDetail update : updatedDetails) {
+		        mainFoodDao.updateMainFoodDetail(update); // 영양소 update
+		    }
 		}
 	}
+	
+	@Override
+    public void saveNutrition(MainFoodDetail detail) {
+		mainFoodDao.updateMainFoodDetail(detail);
+    }
+
+//    @Override
+//    public List<MainFoodDetail> getNutritionByFoodCode(String foodCode) {
+//        return mainFoodDao.selectByFoodCode(foodCode);
+//    }
 
 }

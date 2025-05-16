@@ -2,6 +2,7 @@ package com.ssafy.exam.model.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import com.ssafy.exam.model.dto.MainFood;
@@ -14,4 +15,9 @@ public interface MainFoodDao {
 
     MainFood selectMainFoodByCode(String mainFoodCode);
     List<MainFoodDetail> selectDetailByMainFoodCode(String mainFoodCode);
+    
+    void updateMainFoodDetail(MainFoodDetail detail); // 영양정보 저장
+    MainFoodDetail selectDetail(@Param("mainFoodCode") String mainFoodCode, @Param("foodCode") String foodCode);
+
+//    List<MainFoodDetail> selectByFoodCode(String foodCode); // 특정 food_code에 대한 영양정보 조회
 }

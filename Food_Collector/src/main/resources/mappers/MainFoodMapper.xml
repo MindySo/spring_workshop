@@ -33,11 +33,87 @@
 	<insert id="insertMainFoodDetail"
 		parameterType="com.ssafy.exam.model.dto.MainFoodDetail">
 		INSERT INTO main_food_detail (
-		main_food_code, food_code, food_weight
+		main_food_code, food_code,
+		food_weight
 		) VALUES (
 		#{mainFoodCode}, #{foodCode}, #{foodWeight}
 		)
-		ON DUPLICATE KEY UPDATE food_weight = VALUES(food_weight)
 	</insert>
+
+	<update id="updateMainFoodDetail"
+		parameterType="com.ssafy.exam.model.dto.MainFoodDetail">
+		UPDATE main_food_detail
+		SET
+		food_weight = #{foodWeight},
+		energy_qy = #{energyQy},
+		water_qy = #{waterQy},
+		prot_qy = #{protQy},
+		ntrfs_qy = #{ntrfsQy},
+		ashs_qy = #{ashsQy},
+		carbohydrate_qy =
+		#{carbohydrateQy},
+		sugar_qy = #{sugarQy},
+		fibtg_qy = #{fibtgQy},
+		aat19_qy = #{aat19Qy},
+		aae10a_qy = #{aae10aQy},
+		aane_qy = #{aaneQy},
+		fafref_qy = #{fafrefQy},
+		faessf_qy = #{faessfQy},
+		fasatf_qy =
+		#{fasatfQy},
+		famsf_qy = #{famsfQy},
+		fapuf_qy = #{fapufQy},
+		clci_qy =
+		#{clciQy},
+		irn_qy = #{irnQy},
+		mg_qy = #{mgQy},
+		phph_qy = #{phphQy},
+		ptss_qy = #{ptssQy},
+		na_qy = #{naQy},
+		zn_qy = #{znQy},
+		cu_qy = #{cuQy},
+		mn_qy = #{mnQy},
+		se_qy = #{seQy},
+		mo_qy = #{moQy},
+		id_qy = #{idQy},
+		rtnl_qy = #{rtnlQy},
+		catn_qy = #{catnQy},
+		vitd_qy = #{vitdQy},
+		vite_qy =
+		#{viteQy},
+		vitk1_qy = #{vitk1Qy},
+		vtmn_b1_qy = #{vtmnB1Qy},
+		vtmn_b2_qy =
+		#{vtmnB2Qy},
+		nacn_qy = #{nacnQy},
+		pantac_qy = #{pantacQy},
+		pyrxn_qy =
+		#{pyrxnQy},
+		biot_qy = #{biotQy},
+		fol_qy = #{folQy},
+		vitb12_qy =
+		#{vitb12Qy},
+		vtmn_c_qy = #{vtmnCQy},
+		chole_qy = #{choleQy},
+		nacl_qy =
+		#{naclQy},
+		ref_qy = #{refQy}
+		WHERE main_food_code = #{mainFoodCode}
+		AND
+		food_code = #{foodCode}
+		AND energy_qy IS NULL
+	</update>
+
+	<select id="selectDetail"
+		resultType="com.ssafy.exam.model.dto.MainFoodDetail">
+		SELECT *
+		FROM main_food_detail
+		WHERE main_food_code = #{mainFoodCode}
+		AND food_code = #{foodCode}
+	</select>
+
+
+	<!-- <select id="selectByFoodCode" parameterType="String" resultType="com.ssafy.exam.model.dto.Nutrition"> 
+		SELECT * FROM nutrition WHERE food_code = #{foodCode} </select> -->
 
 </mapper>
